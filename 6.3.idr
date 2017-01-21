@@ -89,8 +89,19 @@ display {schema = SChar} item = show item
 display {schema = (x .+. y)} (iteml, itemr)
   = "(" ++ (display iteml) ++ ", " ++ (display itemr) ++ ")"
 
+
+
+zipWithIndex : List elem -> List (Nat, elem)
+zipWithIndex list = zip (take (length list) [0..]) list
+
+toString' : String -> (Nat, SchemaType schema) -> String
+toString' acc pair = acc ++ (show (fst pair)) ++ ": " ++ (display $ snd pair) ++ "\n"
+
+toString : (store: DataStore) -> String
+toString store = foldl toString' "" (zipWithIndex $ toList (items store))
+
 getEntries : (store: DataStore) -> Maybe (String, DataStore)
-getEntries store = Just ((foldl (\acc => \elem => acc ++ (display elem) ++ "\n") "" (items store)), store)
+getEntries store = Just (toString store, store)
 
 getEntry : (pos : Integer) -> (store : DataStore) -> Maybe (String, DataStore)
 getEntry pos store
